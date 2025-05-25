@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/activerecord_mcp"
+
+# Load Rails environment if available
+begin
+  if File.exist?("config/application.rb")
+    require "./config/environment"
+    puts "✓ Rails environment loaded"
+  end
+rescue => e
+  puts "⚠ Could not load Rails environment: #{e.message}"
+  puts "⚠ Some features may be limited"
+end
+
+# Configure ActiveRecordMcp if needed
+ActiveRecordMcp.configure do |config|
+  config.rails_root = Dir.pwd
+end
+
+# Start the MCP server
+puts "🚀 Starting ActiveRecord MCP server..."
+puts "📍 Rails root: #{ActiveRecordMcp.configuration.rails_root}"
+
+begin
+  ActiveRecordMcp::Server.start
+rescue Interrupt
+  puts "\n👋 Shutting down gracefully..."
+rescue => e
+  puts "❌ Error starting server: #{e.message}"
+  puts e.backtrace.first(5).join("\n")
+  exit 1
+end

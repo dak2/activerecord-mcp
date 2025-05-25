@@ -1,33 +1,20 @@
-#!/usr/bin/env ruby
+# #!/usr/bin/env ruby
 
-require_relative "../lib/activerecord_mcp"
-
-# Load Rails environment if available
-begin
-  if File.exist?("config/application.rb")
-    require "./config/environment"
-    puts "✓ Rails environment loaded"
-  end
-rescue => e
-  puts "⚠ Could not load Rails environment: #{e.message}"
-  puts "⚠ Some features may be limited"
+if defined?(Bundler) && !defined?(Bundler::ORIGINAL_ENV)
+  require "bundler/setup"
+  Bundler::ORIGINAL_ENV = ENV.to_h
 end
 
-# Configure ActiveRecordMcp if needed
-ActiveRecordMcp.configure do |config|
-  config.rails_root = Dir.pwd
+require 'bundler/inline'
+require "fast_mcp"
+require_relative "../lib/activerecord-mcp"
+
+ActiveRecordMcp.configuration do |config|
+  config.projects_root_file_path = File.join(ENV["PROJECTS_ROOT_FILE_PATH"])
+  config.projects_models_file_path = "/models"
+  config.projects_db_file_path = "/db"
 end
 
-# Start the MCP server
-puts "🚀 Starting ActiveRecord MCP server..."
-puts "📍 Rails root: #{ActiveRecordMcp.configuration.rails_root}"
-
-begin
-  ActiveRecordMcp::Server.start
-rescue Interrupt
-  puts "\n👋 Shutting down gracefully..."
-rescue => e
-  puts "❌ Error starting server: #{e.message}"
-  puts e.backtrace.first(5).join("\n")
-  exit 1
-end
+server = FastMcp::Server.new(name: "activerecord-mcp", version: ActiveRecordMcp::VERSION)
+server.register_tools(ActiveRecordMcp::Tools::FetchRecords)
+server.start

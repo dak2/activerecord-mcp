@@ -10,7 +10,7 @@ require "fast_mcp"
 require_relative "../lib/activerecord-mcp"
 
 ActiveRecordMcp.configuration do |config|
-  config.projects_root_file_path = File.join(ENV["PROJECTS_ROOT_FILE_PATH"])
+  config.projects_root_file_path = File.join("/Users/dak2/Dev/Sources/rails-sandbox")
   config.projects_models_file_path = "/models"
   config.projects_db_file_path = "/db"
 end

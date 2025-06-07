@@ -5,9 +5,8 @@ require_relative "activerecord-mcp/tools/select_records"
 
 module ActiveRecordMcp
   class Error < StandardError; end
-  private attr_reader :configuration
 
   def self.configuration(&block)
-    @configuration ||= Config.new(&block)
+    Config.setup(&block)
   end
 end

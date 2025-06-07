@@ -35,7 +35,7 @@ module ActiveRecordMcp
       private
 
       def projects_root_file_path
-        @projects_root_file_path ||= File.expand_path("/Users/dak2/Dev/Sources/rails-sandbox")
+        ActiveRecordMcp::Config.instance.projects_root_file_path
       end
 
       def capture3_args_for(model_name: nil, filter_condition: nil, order_by: nil, limit: nil, count_only: false, dir: projects_root_file_path)

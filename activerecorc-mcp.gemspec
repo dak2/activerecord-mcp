@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   
   spec.add_dependency "fast-mcp", ">= 1.4.0"
   spec.add_dependency "activerecord", ">= 8.0"
-  spec.add_dependency "railties", ">= 8.0"
+  spec.add_dependency "activesupport", ">= 8.0"
   
   # Development dependencies
   spec.add_development_dependency "rake", "~> 13.0"

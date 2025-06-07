@@ -1,6 +1,6 @@
 require_relative "activerecord-mcp/version"
 require_relative "activerecord-mcp/config"
-require_relative "activerecord-mcp/tools/fetch_records"
+require_relative "activerecord-mcp/tools/select_records"
 # require_relative "activerecord-mcp/query_builder"
 
 module ActiveRecordMcp

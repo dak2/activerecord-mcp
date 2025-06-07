@@ -43,13 +43,13 @@ This will start the MCP server and load your Rails environment, making all your 
 
 ### Available Tools
 
-#### `fetch_records`
+#### `select_records`
 
 Query your ActiveRecord models using natural language:
 
 ```json
 {
-  "tool": "fetch_records",
+  "tool": "select_records",
   "arguments": {
     "query": "find all users created today",
     "limit": 10
@@ -125,7 +125,7 @@ Then restart Claude Desktop. You'll be able to ask questions like:
 
 ## Query Examples
 
-The `fetch_records` tool supports various natural language patterns:
+The `select_records` tool supports various natural language patterns:
 
 ### Basic Queries
 - `"find all users"` → `User.all.limit(10)`

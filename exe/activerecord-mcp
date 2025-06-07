@@ -16,5 +16,5 @@ ActiveRecordMcp.configuration do |config|
 end
 
 server = FastMcp::Server.new(name: "activerecord-mcp", version: ActiveRecordMcp::VERSION)
-server.register_tools(ActiveRecordMcp::Tools::FetchRecords)
+server.register_tools(ActiveRecordMcp::Tools::SelectRecords)
 server.start

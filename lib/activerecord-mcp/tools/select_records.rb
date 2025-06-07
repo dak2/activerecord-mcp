@@ -3,9 +3,9 @@ require "bundler"
 
 module ActiveRecordMcp
   module Tools
-    class FetchRecords < FastMcp::Tool
-      tool_name "fetch_records"
-      description "Fetch ActiveRecord records using natural language queries"
+    class SelectRecords < FastMcp::Tool
+      tool_name "select_records"
+      description "Select ActiveRecord records using natural language queries"
 
       arguments do
         optional(:model_name).filled(:string).description("Model name to fetch records for (e.g., 'users', 'products'). Use snake_case, plural form. If omitted, returns complete database schema.")

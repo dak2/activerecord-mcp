@@ -4,19 +4,36 @@ require "active_support/inflector/methods"
 
 module ActiveRecordMcp
   module Tools
-    class SelectRecords < FastMcp::Tool
-      tool_name "select_records"
+    class SelectRecords < MCP::Tool
       description "Select ActiveRecord records using natural language queries"
 
-      arguments do
-        optional(:model_name).filled(:string).description("Model name to fetch records for (e.g., 'users', 'products'). Use snake_case, plural form. If omitted, returns complete database schema.")
-        optional(:filter_condition).filled(:string).description("WHERE condition to filter records (e.g., 'content IS NOT NULL', 'status = \"published\"')")
-        optional(:order_by).filled(:string).description("ORDER BY clause (e.g., 'created_at DESC', 'name ASC')")
-        optional(:limit).filled(:integer).description("Maximum number of records to return (e.g., 5, 10)")
-        optional(:count_only).filled(:bool).description("Return only the count/size of records instead of the actual records (e.g., true for 'show the size of posts')")
-      end
+      input_schema(
+        properties: {
+          model_name: {
+            type: "string",
+            description: "Model name to fetch records for (e.g., 'users', 'products'). Use snake_case, plural form. If omitted, returns complete database schema."
+          },
+          filter_condition: {
+            type: "string",
+            description: "WHERE condition to filter records (e.g., 'content IS NOT NULL', 'status = \"published\"')"
+          },
+          order_by: {
+            type: "string",
+            description: "ORDER BY clause (e.g., 'created_at DESC', 'name ASC')"
+          },
+          limit: {
+            type: "integer",
+            description: "Maximum number of records to return (e.g., 5, 10)"
+          },
+          count_only: {
+            type: "boolean",
+            description: "Return only the count/size of records instead of the actual records (e.g., true for 'show the size of posts')"
+          }
+        },
+        required: []
+      )
 
-      def call(model_name: nil, filter_condition: nil, order_by: nil, limit: nil, count_only: false)
+      def self.call(model_name: nil, filter_condition: nil, order_by: nil, limit: nil, count_only: false, server_context:)
         stdout_str, stderr_str, status = Open3.capture3(*capture3_args_for(
           model_name: model_name, 
           filter_condition: filter_condition,
@@ -26,19 +43,19 @@ module ActiveRecordMcp
           dir: projects_root_file_path
         ))
         if status.success?
-          return stdout_str
+          MCP::Tool::Response.new([{ type: "text", text: stdout_str }])
         else
-          return stderr_str
+          MCP::Tool::Response.new([{ type: "text", text: stderr_str }])
         end
       end
 
       private
 
-      def projects_root_file_path
+      def self.projects_root_file_path
         ActiveRecordMcp::Config.instance.projects_root_file_path
       end
 
-      def capture3_args_for(model_name: nil, filter_condition: nil, order_by: nil, limit: nil, count_only: false, dir: projects_root_file_path)
+      def self.capture3_args_for(model_name: nil, filter_condition: nil, order_by: nil, limit: nil, count_only: false, dir: projects_root_file_path)
         raise "Model name is required" if model_name.nil?
 
         query_parts = build_query_chain(classify(model_name), filter_condition, order_by, limit, count_only)
@@ -53,7 +70,7 @@ module ActiveRecordMcp
         raise "Error selecting records for model '#{model_name}': #{e.message}"
       end
 
-      def build_query_chain(model_class, filter_condition, order_by, limit, count_only)
+      def self.build_query_chain(model_class, filter_condition, order_by, limit, count_only)
         query = "#{model_class}.all"
         
         if filter_condition
@@ -75,7 +92,7 @@ module ActiveRecordMcp
         query
       end
 
-      def classify(table_name)
+      def self.classify(table_name)
         ActiveSupport::Inflector.classify(table_name)
       end
     end

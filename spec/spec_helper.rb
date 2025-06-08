@@ -1,5 +1,5 @@
 require 'bundler/setup'
-require 'fast_mcp'
+require 'mcp'
 require 'activerecord-mcp'
 
 RSpec.configure do |config|

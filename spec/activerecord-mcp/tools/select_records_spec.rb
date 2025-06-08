@@ -10,64 +10,58 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
     end
   end
 
-  describe '.tool_name' do
-    it 'returns the correct tool name' do
-      expect(described_class.tool_name).to eq('select_records')
-    end
-  end
-
-  describe '#projects_root_file_path' do
+  describe '.projects_root_file_path' do
     it 'returns the configured path from Config' do
-      expect(tool.send(:projects_root_file_path)).to eq(test_dir)
+      expect(described_class.send(:projects_root_file_path)).to eq(test_dir)
     end
   end
 
-  describe '#classify' do
+  describe '.classify' do
     it 'converts table names to class names' do
-      expect(tool.send(:classify, 'users')).to eq('User')
-      expect(tool.send(:classify, 'blog_posts')).to eq('BlogPost')
-      expect(tool.send(:classify, 'posts')).to eq('Post')
+      expect(described_class.send(:classify, 'users')).to eq('User')
+      expect(described_class.send(:classify, 'blog_posts')).to eq('BlogPost')
+      expect(described_class.send(:classify, 'posts')).to eq('Post')
     end
   end
 
-  describe '#build_query_chain' do
+  describe '.build_query_chain' do
     it 'builds basic query without conditions' do
-      query = tool.send(:build_query_chain, 'Post', nil, nil, nil, false)
+      query = described_class.send(:build_query_chain, 'Post', nil, nil, nil, false)
       expect(query).to eq('Post.all')
     end
 
     it 'builds query with filter condition' do
-      query = tool.send(:build_query_chain, 'Post', 'title IS NOT NULL', nil, nil, false)
+      query = described_class.send(:build_query_chain, 'Post', 'title IS NOT NULL', nil, nil, false)
       expect(query).to eq('Post.all.where("title IS NOT NULL")')
     end
 
     it 'builds query with order clause' do
-      query = tool.send(:build_query_chain, 'Post', nil, 'created_at DESC', nil, false)
+      query = described_class.send(:build_query_chain, 'Post', nil, 'created_at DESC', nil, false)
       expect(query).to eq('Post.all.order("created_at DESC")')
     end
 
     it 'builds query with limit' do
-      query = tool.send(:build_query_chain, 'Post', nil, nil, 5, false)
+      query = described_class.send(:build_query_chain, 'Post', nil, nil, 5, false)
       expect(query).to eq('Post.all.limit(5)')
     end
 
     it 'builds query with all conditions' do
-      query = tool.send(:build_query_chain, 'Post', 'status = "published"', 'created_at DESC', 10, false)
+      query = described_class.send(:build_query_chain, 'Post', 'status = "published"', 'created_at DESC', 10, false)
       expect(query).to eq('Post.all.where("status = "published"").order("created_at DESC").limit(10)')
     end
 
     it 'builds count query' do
-      query = tool.send(:build_query_chain, 'Post', nil, nil, nil, true)
+      query = described_class.send(:build_query_chain, 'Post', nil, nil, nil, true)
       expect(query).to eq('Post.all.count')
     end
 
     it 'builds count query with filter condition' do
-      query = tool.send(:build_query_chain, 'Post', 'status = "published"', nil, nil, true)
+      query = described_class.send(:build_query_chain, 'Post', 'status = "published"', nil, nil, true)
       expect(query).to eq('Post.all.where("status = "published"").count')
     end
 
     it 'ignores order and limit for count queries' do
-      query = tool.send(:build_query_chain, 'Post', 'status = "published"', 'created_at DESC', 5, true)
+      query = described_class.send(:build_query_chain, 'Post', 'status = "published"', 'created_at DESC', 5, true)
       expect(query).to eq('Post.all.where("status = "published"").count')
     end
   end
@@ -75,12 +69,12 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
   describe '#capture3_args_for' do
     it 'raises error when model_name is nil' do
       expect {
-        tool.send(:capture3_args_for, model_name: nil)
+        described_class.send(:capture3_args_for, model_name: nil)
       }.to raise_error(/Model name is required/)
     end
 
     it 'builds ruby command for basic query' do
-      args = tool.send(:capture3_args_for, model_name: 'posts')
+      args = described_class.send(:capture3_args_for, model_name: 'posts')
       expect(args[0]).to eq('ruby')
       expect(args[1]).to eq('-e')
       expect(args[2]).to include('Post.all.inspect')
@@ -88,13 +82,13 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
     end
 
     it 'builds ruby command for count query' do
-      args = tool.send(:capture3_args_for, model_name: 'posts', count_only: true)
+      args = described_class.send(:capture3_args_for, model_name: 'posts', count_only: true)
       expect(args[2]).to include('Post.all.count')
       expect(args[2]).not_to include('.inspect')
     end
 
     it 'builds ruby command with all parameters' do
-      args = tool.send(:capture3_args_for, 
+      args = described_class.send(:capture3_args_for, 
         model_name: 'posts',
         filter_condition: 'status = "published"',
         order_by: 'created_at DESC',
@@ -118,19 +112,21 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         { chdir: test_dir }
       )
       
-      tool.call(model_name: 'posts')
+      described_class.call(model_name: 'posts', server_context: {})
     end
 
     it 'returns stdout when successful' do
       allow(Open3).to receive(:capture3).and_return(['success output', 'error', double(success?: true)])
-      result = tool.call(model_name: 'posts')
-      expect(result).to eq('success output')
+      result = described_class.call(model_name: 'posts', server_context: {})
+      expect(result).to be_a(MCP::Tool::Response)
+      expect(result.content).to eq([{ type: "text", text: "success output" }])
     end
 
     it 'returns stderr when failed' do
       allow(Open3).to receive(:capture3).and_return(['output', 'error message', double(success?: false)])
-      result = tool.call(model_name: 'posts')
-      expect(result).to eq('error message')
+      result = described_class.call(model_name: 'posts', server_context: {})
+      expect(result).to be_a(MCP::Tool::Response)
+      expect(result.content).to eq([{ type: "text", text: "error message" }])
     end
 
     it 'handles all parameters correctly' do
@@ -141,11 +137,12 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         { chdir: test_dir }
       )
       
-      tool.call(
+      described_class.call(
         model_name: 'posts',
         filter_condition: 'published = true',
         order_by: 'created_at DESC',
-        limit: 10
+        limit: 10,
+        server_context: {}
       )
     end
 
@@ -157,7 +154,7 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         { chdir: test_dir }
       )
       
-      tool.call(model_name: 'posts', count_only: true)
+      described_class.call(model_name: 'posts', count_only: true, server_context: {})
     end
   end
 end

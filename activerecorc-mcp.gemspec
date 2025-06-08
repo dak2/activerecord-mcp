@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.executables = ["activerecord-mcp"]
   spec.require_paths = ["lib"]
   
-  spec.add_dependency "fast-mcp", ">= 1.4.0"
+  spec.add_dependency "mcp"
   spec.add_dependency "activerecord", ">= 8.0"
   spec.add_dependency "activesupport", ">= 8.0"
   

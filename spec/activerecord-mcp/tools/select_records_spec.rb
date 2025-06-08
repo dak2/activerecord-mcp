@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
@@ -68,9 +70,9 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
 
   describe '#capture3_args_for' do
     it 'raises error when model_name is nil' do
-      expect {
+      expect do
         described_class.send(:capture3_args_for, model_name: nil)
-      }.to raise_error(/Model name is required/)
+      end.to raise_error(/Model name is required/)
     end
 
     it 'builds ruby command for basic query' do
@@ -88,12 +90,11 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
     end
 
     it 'builds ruby command with all parameters' do
-      args = described_class.send(:capture3_args_for, 
-        model_name: 'posts',
-        filter_condition: 'status = "published"',
-        order_by: 'created_at DESC',
-        limit: 5
-      )
+      args = described_class.send(:capture3_args_for,
+                                  model_name: 'posts',
+                                  filter_condition: 'status = "published"',
+                                  order_by: 'created_at DESC',
+                                  limit: 5)
       expected_query = 'Post.all.where("status = "published"").order("created_at DESC").limit(5)'
       expect(args[2]).to include(expected_query)
     end
@@ -111,7 +112,7 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         /Post\.all\.inspect/,
         { chdir: test_dir }
       )
-      
+
       described_class.call(model_name: 'posts', server_context: {})
     end
 
@@ -119,14 +120,14 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
       allow(Open3).to receive(:capture3).and_return(['success output', 'error', double(success?: true)])
       result = described_class.call(model_name: 'posts', server_context: {})
       expect(result).to be_a(MCP::Tool::Response)
-      expect(result.content).to eq([{ type: "text", text: "success output" }])
+      expect(result.content).to eq([{ type: 'text', text: 'success output' }])
     end
 
     it 'returns stderr when failed' do
       allow(Open3).to receive(:capture3).and_return(['output', 'error message', double(success?: false)])
       result = described_class.call(model_name: 'posts', server_context: {})
       expect(result).to be_a(MCP::Tool::Response)
-      expect(result.content).to eq([{ type: "text", text: "error message" }])
+      expect(result.content).to eq([{ type: 'text', text: 'error message' }])
     end
 
     it 'handles all parameters correctly' do
@@ -136,7 +137,7 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         /Post\.all\.where.*order.*limit/,
         { chdir: test_dir }
       )
-      
+
       described_class.call(
         model_name: 'posts',
         filter_condition: 'published = true',
@@ -153,7 +154,7 @@ RSpec.describe ActiveRecordMcp::Tools::SelectRecords do
         /Post\.all\.count/,
         { chdir: test_dir }
       )
-      
+
       described_class.call(model_name: 'posts', count_only: true, server_context: {})
     end
   end

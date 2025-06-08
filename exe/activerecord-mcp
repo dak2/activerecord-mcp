@@ -1,23 +1,25 @@
+# frozen_string_literal: true
+
 # #!/usr/bin/env ruby
 
 if defined?(Bundler) && !defined?(Bundler::ORIGINAL_ENV)
-  require "bundler/setup"
+  require 'bundler/setup'
   Bundler::ORIGINAL_ENV = ENV.to_h
 end
 
 require 'bundler/inline'
-require "mcp"
-require "mcp/transports/stdio"
-require_relative "../lib/activerecord-mcp"
+require 'mcp'
+require 'mcp/transports/stdio'
+require_relative '../lib/activerecord-mcp'
 
 ActiveRecordMcp.configuration do |config|
-  config.projects_root_file_path = File.join("/Users/dak2/Dev/Sources/rails-sandbox")
-  config.projects_models_file_path = "/models"
-  config.projects_db_file_path = "/db"
+  config.projects_root_file_path = File.join('/Users/dak2/Dev/Sources/rails-sandbox')
+  config.projects_models_file_path = '/models'
+  config.projects_db_file_path = '/db'
 end
 
 server = MCP::Server.new(
-  name: "activerecord-mcp", 
+  name: 'activerecord-mcp',
   version: ActiveRecordMcp::VERSION,
   tools: [ActiveRecordMcp::Tools::SelectRecords]
 )

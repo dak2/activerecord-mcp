@@ -1,16 +1,17 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Simple example of how to use activerecord-mcp in a standalone script
 # This demonstrates usage outside of a full Rails application
 
-require "bundler/setup"
-require "active_record"
-require_relative "../lib/activerecord_mcp"
+require 'bundler/setup'
+require 'active_record'
+require_relative '../lib/activerecord_mcp'
 
 # Setup a simple in-memory SQLite database for demonstration
 ActiveRecord::Base.establish_connection(
-  adapter: "sqlite3",
-  database: ":memory:"
+  adapter: 'sqlite3',
+  database: ':memory:'
 )
 
 # Create some sample models
@@ -36,27 +37,27 @@ ActiveRecord::Schema.define do
     t.integer :age
     t.timestamps
   end
-  
+
   create_table :posts do |t|
     t.string :title, null: false
     t.text :content
     t.references :user, null: false, foreign_key: true
     t.timestamps
   end
-  
+
   add_index :users, :email, unique: true
 end
 
 # Seed some sample data
 users = [
-  { name: "John Doe", email: "john@example.com", age: 30 },
-  { name: "Jane Smith", email: "jane@example.com", age: 25 },
-  { name: "Bob Wilson", email: "bob@example.com", age: 35 }
+  { name: 'John Doe', email: 'john@example.com', age: 30 },
+  { name: 'Jane Smith', email: 'jane@example.com', age: 25 },
+  { name: 'Bob Wilson', email: 'bob@example.com', age: 35 }
 ]
 
 users.each do |user_attrs|
   user = User.create!(user_attrs)
-  
+
   # Create some posts for each user
   2.times do |i|
     user.posts.create!(
@@ -73,15 +74,15 @@ ActiveRecordMcp.configure do |config|
   config.rails_root = Dir.pwd
 end
 
-puts "🚀 Starting ActiveRecord MCP server with sample data..."
+puts '🚀 Starting ActiveRecord MCP server with sample data...'
 puts "📊 Available models: #{[User, Post].map(&:name).join(', ')}"
-puts ""
-puts "Try these queries:"
+puts ''
+puts 'Try these queries:'
 puts "  - 'find all users'"
 puts "  - 'get user with email john@example.com'"
 puts "  - 'show me the newest posts'"
 puts "  - 'find users older than 30'"
-puts ""
+puts ''
 
 # Start the server
 ActiveRecordMcp::Server.start

@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 RSpec.describe 'SelectRecords Integration', :integration do
-
   before do
     ActiveRecordMcp::Config.setup do |config|
       config.projects_root_file_path = '/tmp/test_rails_project'
@@ -16,7 +17,8 @@ RSpec.describe 'SelectRecords Integration', :integration do
 
   describe 'query building examples' do
     it 'generates correct query for "show posts that has content"' do
-      query = ActiveRecordMcp::Tools::SelectRecords.send(:build_query_chain, 'Post', 'content IS NOT NULL', nil, nil, false)
+      query = ActiveRecordMcp::Tools::SelectRecords.send(:build_query_chain, 'Post', 'content IS NOT NULL', nil, nil,
+                                                         false)
       expect(query).to eq('Post.all.where("content IS NOT NULL")')
     end
 
@@ -36,22 +38,21 @@ RSpec.describe 'SelectRecords Integration', :integration do
     end
 
     it 'generates complex query combining all features' do
-      query = ActiveRecordMcp::Tools::SelectRecords.send(:build_query_chain, 
-        'Post', 
-        'status = "published" AND content IS NOT NULL', 
-        'created_at DESC', 
-        5, 
-        false
-      )
+      query = ActiveRecordMcp::Tools::SelectRecords.send(:build_query_chain,
+                                                         'Post',
+                                                         'status = "published" AND content IS NOT NULL',
+                                                         'created_at DESC',
+                                                         5,
+                                                         false)
       expect(query).to eq('Post.all.where("status = "published" AND content IS NOT NULL").order("created_at DESC").limit(5)')
     end
   end
 
   describe 'error handling' do
     it 'provides helpful error message for missing model name' do
-      expect {
+      expect do
         ActiveRecordMcp::Tools::SelectRecords.call(server_context: {})
-      }.to raise_error(/Model name is required/)
+      end.to raise_error(/Model name is required/)
     end
   end
 end

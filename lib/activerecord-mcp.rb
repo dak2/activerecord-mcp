@@ -1,6 +1,8 @@
-require_relative "activerecord-mcp/version"
-require_relative "activerecord-mcp/config"
-require_relative "activerecord-mcp/tools/select_records"
+# frozen_string_literal: true
+
+require_relative 'activerecord-mcp/version'
+require_relative 'activerecord-mcp/config'
+require_relative 'activerecord-mcp/tools/select_records'
 # require_relative "activerecord-mcp/query_builder"
 
 module ActiveRecordMcp

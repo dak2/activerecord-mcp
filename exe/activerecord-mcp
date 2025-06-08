@@ -21,7 +21,7 @@ end
 server = MCP::Server.new(
   name: 'activerecord-mcp',
   version: ActiveRecordMcp::VERSION,
-  tools: [ActiveRecordMcp::Tools::SelectRecords]
+  tools: [ActiveRecordMcp::Tools::SelectRecords, ActiveRecordMcp::Tools::DescribeTable]
 )
 
 transport = MCP::Transports::StdioTransport.new(server)

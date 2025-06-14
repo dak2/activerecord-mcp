@@ -13,7 +13,6 @@ The gem follows a modular structure:
 - **Main module (`lib/activerecord-mcp.rb`)**: Entry point that loads core components
 - **Configuration (`lib/activerecord-mcp/config.rb`)**: Singleton configuration class managing Rails project paths
 - **Tools (`lib/activerecord-mcp/tools/`)**: MCP tool implementations using the official mcp gem
-- **QueryBuilder (`lib/activerecord-mcp/query_builder.rb`)**: Natural language to ActiveRecord query conversion (currently commented out in main module)
 - **Executable (`exe/activerecord-mcp`)**: MCP server entry point with MCP::Server and StdioTransport setup
 
 ### Key Components
@@ -43,8 +42,8 @@ bundle exec rspec spec/path/to/test_spec.rb --tag focus
 
 ### Code Quality
 ```bash
-# Run StandardRB linting
-bundle exec standardrb --fix
+# Run RuboCop linting
+bundle exec rubocop --fix
 ```
 
 ### Installation and Setup

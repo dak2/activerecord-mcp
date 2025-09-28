@@ -10,5 +10,6 @@ group :development do
   gem 'rubocop-rspec', '~> 3.6.0'
 end
 
-# Specify your gem's dependencies in activerecord-mcp.gemspec
-gemspec
+gem 'activerecord', '>= 8.0'
+gem 'activesupport', '>= 8.0'
+gem 'mcp'

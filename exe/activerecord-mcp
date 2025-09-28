@@ -2,17 +2,11 @@
 
 # #!/usr/bin/env ruby
 
-if defined?(Bundler) && !defined?(Bundler::ORIGINAL_ENV)
-  require 'bundler/setup'
-  Bundler::ORIGINAL_ENV = ENV.to_h
-end
-
-require 'bundler/inline'
+# require 'bundler/inline'
 require 'mcp'
 require 'mcp/transports/stdio'
 require_relative '../lib/activerecord-mcp'
 
-# TODO: initialize from another file
 ActiveRecordMcp.configuration do |config|
   config.projects_root_file_path = File.join('/Users/dak2/Dev/Sources/rails-sandbox')
   config.projects_models_file_path = '/models'

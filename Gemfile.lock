@@ -1,11 +1,3 @@
-PATH
-  remote: .
-  specs:
-    activerecord-mcp (0.1.0)
-      activerecord (>= 8.0)
-      activesupport (>= 8.0)
-      mcp
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -103,7 +95,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord-mcp!
+  activerecord (>= 8.0)
+  activesupport (>= 8.0)
+  mcp
   rake (~> 13.0)
   rspec (~> 3.0)
   rubocop (~> 1.76.0)

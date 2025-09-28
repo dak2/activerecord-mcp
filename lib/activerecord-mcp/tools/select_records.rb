@@ -19,6 +19,10 @@ module ActiveRecordMcp
             type: 'string',
             description: "WHERE condition to filter records (e.g., 'content IS NOT NULL', 'status = \"published\"')"
           },
+          stats_statement: {
+            type: 'string',
+            description: "COUNT, SUM, AVG, MIN, MAX aggregation instead of full records. Use downcase (e.g., 'count', 'sum(`column_name`)', 'avg(`column_name`)', 'min(`column_name`)', 'max(`column_name`)'"
+          },
           order_by: {
             type: 'string',
             description: "ORDER BY clause (e.g., 'created_at DESC', 'name ASC')"
@@ -26,23 +30,18 @@ module ActiveRecordMcp
           limit: {
             type: 'integer',
             description: 'Maximum number of records to return (e.g., 5, 10)'
-          },
-          count_only: {
-            type: 'boolean',
-            description: "Return only the count/size of records instead of the actual records (e.g., true for 'show the size of posts')"
           }
         },
         required: ['model_name']
       )
 
-      def self.call(server_context:, model_name:, filter_condition: nil, order_by: nil, limit: nil,
-                    count_only: false)
+      def self.call(server_context:, model_name:, filter_condition: nil, stats_statement: nil, order_by: nil, limit: nil)
         stdout_str, stderr_str, status = Open3.capture3(*capture3_args_for(
           model_name: model_name,
           filter_condition: filter_condition,
           order_by: order_by,
           limit: limit,
-          count_only: count_only,
+          stats_statement: stats_statement,
           dir: projects_root_file_path
         ))
         if status.success?
@@ -56,23 +55,19 @@ module ActiveRecordMcp
         ActiveRecordMcp::Config.instance.projects_root_file_path
       end
 
-      def self.capture3_args_for(model_name:, filter_condition: nil, order_by: nil, limit: nil, count_only: false,
+      def self.capture3_args_for(model_name:, filter_condition: nil, stats_statement: nil, order_by: nil, limit: nil,
                                  dir: projects_root_file_path)
         raise ArgumentError, 'Model name is required' if model_name.nil?
 
-        query_parts = build_query_chain(classify(model_name), filter_condition, order_by, limit, count_only)
-        ruby_code = if count_only
-                      "require './config/environment'; puts #{query_parts}"
-                    else
-                      "require './config/environment'; puts #{query_parts}.inspect"
-                    end
+        query_parts = build_query_chain(classify(model_name), filter_condition, stats_statement, order_by, limit)
+        ruby_code = "require './config/environment'; puts #{query_parts}.inspect"
 
         ['ruby', '-e', ruby_code, { chdir: dir }]
       rescue StandardError => e
         raise "Error selecting records for model '#{model_name}': #{e.message}"
       end
 
-      def self.build_query_chain(model_class, filter_condition, order_by, limit, count_only)
+      def self.build_query_chain(model_class, filter_condition, stats_statement, order_by, limit)
         query = "#{model_class}.all"
 
         if filter_condition
@@ -82,15 +77,21 @@ module ActiveRecordMcp
           query += ".where(\"#{filter_condition}\")"
         end
 
-        if order_by && !count_only
+        if stats_statement
+          # Validate and sanitize stats statement to prevent SQL injection
+          return nil unless validate_sql_condition(stats_statement)
+
+          query += ".#{stats_statement.downcase}"
+          return query  # If stats_statement is provided, we don't need order or limit
+        end
+
+        if order_by
           # Validate and sanitize order_by to prevent SQL injection
           sanitized_order = sanitize_order_by(order_by)
           query += ".order(\"#{sanitized_order}\")" if sanitized_order
         end
 
-        query += ".limit(#{limit.to_i})" if limit && !count_only
-
-        query += '.count' if count_only
+        query += ".limit(#{limit.to_i})" if limit
 
         query
       end
